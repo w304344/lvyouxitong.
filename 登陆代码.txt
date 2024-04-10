@@ -1,0 +1,89 @@
+public void loginUser(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+	String userName = (String) request.getParameter("userName");
+	String password = (String) request.getParameter("password");
+	String loginType = (String) request.getParameter("loginType");
+	
+	String ip = request.getRemoteAddr();
+	Date date = new Date();
+	Rizhi rizhi = new Rizhi();						
+	rizhi.setRizhiName(userName);
+	rizhi.setDate(date);
+	rizhi.setDengluIp(ip);
+	rizhiService.save(rizhi);
+	if (StringUtil.isEmpty(userName) || StringUtil.isEmpty(password)) {
+		request.setAttribute("error", "用户名或密码为空！");
+		request.getRequestDispatcher("shouye/index.jsp").forward(request,
+				response);
+	} else {
+		// 获取Session
+		HttpSession session=request.getSession();
+		if (loginType.equals("admin")) {
+			Admin admin = new Admin();
+			admin.setAdminName(userName);
+			admin.setAdminPassword(password);
+			try {
+				if (adminService.queryAdmins(admin, 0, 0).size()==1) {
+					session.setAttribute("admin", admin);
+					// 客户端跳转
+					response.sendRedirect("houtai/adminMain.jsp");
+				}else{
+					request.setAttribute("error", "用户名或密码错误！");
+					// 服务器跳转
+					request.getRequestDispatcher("shouye/index.jsp").forward(request, response);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				request.setAttribute("error", "服务器错误！");
+				// 服务器跳转
+				request.getRequestDispatcher("shouye/index.jsp").forward(request, response);
+			}
+		} else if (loginType.equals("yonghu")){
+			Yonghu yonghu = new Yonghu();
+			yonghu.setYonghuName(userName);
+			yonghu.setYonghuPassword(password);
+			try {
+				if (yonghuService.queryYonghus(yonghu, userName, 0, 0, null, null, null, null).size() == 1) {
+					Yonghu yonghuLogin = (Yonghu)(yonghuService.queryYonghus(yonghu, userName, 0, 0, null, null, null, null)).get(0);
+					session.setAttribute("yonghu", yonghuLogin);
+					// 客户端跳转
+					response.sendRedirect("houtai/yonghuMain.jsp");
+				}else{
+					request.setAttribute("error", "用户名或密码错误！");
+					// 服务器跳转
+					request.getRequestDispatcher("shouye/index.jsp").forward(request, response);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				request.setAttribute("error", "服务器错误！");
+				// 服务器跳转
+				request.getRequestDispatcher("shouye/index.jsp").forward(request, response);
+			}
+		}else if (loginType.equals("user")){
+			User user = new User();
+			user.setUserName(userName);
+			user.setUserPassword(password);
+			try {
+				if (userService.queryUsers(user, userName, 0, 0, null, null, null, null).size() == 1) {
+					User userLogin = (User)(userService.queryUsers(user, userName, 0, 0, null, null, null, null)).get(0);
+					session.setAttribute("user", userLogin);
+					// 客户端跳转
+					response.sendRedirect("houtai/userMain.jsp");
+				}else{
+					request.setAttribute("error", "用户名或密码错误！");
+					// 服务器跳转
+					request.getRequestDispatcher("shouye/index.jsp").forward(request, response);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				request.setAttribute("error", "服务器错误！");
+				// 服务器跳转
+				request.getRequestDispatcher("shouye/index.jsp").forward(request, response);
+			}
+		}else{
+			request.setAttribute("error", "登录权限错误！");
+			// 服务器跳转
+			request.getRequestDispatcher("shouye/index.jsp").forward(request, response);
+		}
+	}
+}

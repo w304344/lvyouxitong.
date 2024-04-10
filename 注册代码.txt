@@ -1,0 +1,76 @@
+public void zhuceUser(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+	request.setCharacterEncoding("UTF-8");
+	response.setCharacterEncoding("UTF-8");
+	try {
+
+		String userName = (String) request.getParameter("userName");
+		String userPassword = (String) request.getParameter("userPassword");
+		String userAge = (String) request.getParameter("userAge");
+		String userXingming = (String) request.getParameter("userXingming");
+		String userSex = (String) request.getParameter("userSex");
+		String userPhone = (String) request.getParameter("userPhone");
+		String userMark = (String) request.getParameter("userMark");
+		String userMark1 = (String) request.getParameter("userMark1");
+		String userDate = (String) request.getParameter("userDate");
+		String userType = (String) request.getParameter("userType");
+		String userType1 = (String) request.getParameter("userType1");
+		String userId = (String) request.getParameter("userId");
+		User user = new User();
+
+		if (StringUtil.isNotEmpty(userId)) {
+			user = userService.getUser(Integer.parseInt(userId));
+		}
+		if (StringUtil.isNotEmpty(userName)) {
+			user.setUserName(userName);
+		}
+		if (StringUtil.isNotEmpty(userPassword)) {
+			user.setUserPassword(userPassword);
+		}
+		if (StringUtil.isNotEmpty(userAge)) {
+			user.setUserAge(Integer.parseInt(userAge));
+		}
+		if (StringUtil.isNotEmpty(userXingming)) {
+			user.setUserXingming(userXingming);
+		}
+		if (StringUtil.isNotEmpty(userSex)) {
+			user.setUserSex(Integer.parseInt(userSex));
+		}
+		if (StringUtil.isNotEmpty(userPhone)) {
+			user.setUserPhone(userPhone);
+		}
+		if (StringUtil.isNotEmpty(userMark)) {
+			user.setUserMark(userMark);
+		}
+		if (StringUtil.isNotEmpty(userMark1)) {
+			user.setUserMark1(userMark1);
+		}
+		if (StringUtil.isNotEmpty(userDate)) {
+			user.setUserDate(DateUtil.formatString(userDate,
+					"yyyy-MM-dd HH:mm:ss"));
+		}
+		if (StringUtil.isNotEmpty(userType)) {
+			user.setUserType(Integer.parseInt(userType));
+		}
+		if (StringUtil.isNotEmpty(userType1)) {
+			user.setUserType1(Integer.parseInt(userType1));
+		}
+		//注册判断用户名是否重复，如果重复则返回提示信息
+		int total = userService.queryUsers(null, userName, 0, 0, null, null, null, null).size();
+		if (total==0) {
+			Date date = new Date();
+			user.setUserDate(date);
+			user.setUserType(0);
+			userService.save(user);
+			request.setAttribute("error", "注册成功，请登录！");
+			request.getRequestDispatcher("shouye/index.jsp").forward(request,
+					response);
+		} else {
+			request.setAttribute("error", "用户名重复，请重新输入！");
+			request.getRequestDispatcher("user/zhuceuser.jsp").forward(request,
+					response);
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}

@@ -1,0 +1,137 @@
+//添加修改
+@RequestMapping("/addSjxiaoxi")
+public void addSjxiaoxi(HttpServletRequest request, HttpServletResponse response)
+		throws Exception {
+	request.setCharacterEncoding("UTF-8");
+	response.setCharacterEncoding("UTF-8");
+	try {
+		JSONObject result = new JSONObject();
+		String sjxiaoxiName = (String) request.getParameter("sjxiaoxiName");
+		String sjxiaoxiMark = (String) request.getParameter("sjxiaoxiMark");
+		String sjxiaoxiMark1 = (String) request.getParameter("sjxiaoxiMark1");
+		String sjxiaoxiMark2 = (String) request.getParameter("sjxiaoxiMark2");
+		String sjxiaoxiDate = (String) request.getParameter("sjxiaoxiDate");
+		String sjxiaoxiType = (String) request.getParameter("sjxiaoxiType");
+		String sjxiaoxiId = (String) request.getParameter("sjxiaoxiId");
+		Sjxiaoxi sjxiaoxi = new Sjxiaoxi();
+
+		if (StringUtil.isNotEmpty(sjxiaoxiId)) {
+			sjxiaoxi = sjxiaoxiService.getSjxiaoxi(Integer.parseInt(sjxiaoxiId));
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiName)) {
+			sjxiaoxi.setSjxiaoxiName(sjxiaoxiName);
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiMark)) {
+			sjxiaoxi.setSjxiaoxiMark(sjxiaoxiMark);
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiMark1)) {
+			sjxiaoxi.setSjxiaoxiMark1(sjxiaoxiMark1);
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiMark2)) {
+			sjxiaoxi.setSjxiaoxiMark2(sjxiaoxiMark2);
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiDate)) {
+			sjxiaoxi.setSjxiaoxiDate(DateUtil.formatString(sjxiaoxiDate,
+					"yyyy-MM-dd HH:mm:ss"));
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiType)) {
+			sjxiaoxi.setSjxiaoxiType(Integer.parseInt(sjxiaoxiType));
+		}
+		//Id不为空则执行修改方法
+		if (StringUtil.isNotEmpty(sjxiaoxiId)) {
+			Date date = new Date();
+			sjxiaoxi.setSjxiaoxiDate(date);
+			sjxiaoxiService.modifySjxiaoxi(sjxiaoxi);
+			result.put("success", "true");
+			ResponseUtil.write(response, result);
+		}
+		//Id为空则执行新增方法
+		else {
+			Date date = new Date();
+			sjxiaoxi.setSjxiaoxiDate(date);
+			sjxiaoxiService.save(sjxiaoxi);
+			result.put("success", "true");
+			ResponseUtil.write(response, result);
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}
+public void modifySjxiaoxi(Sjxiaoxi sjxiaoxi) {
+	// TODO Auto-generated method stub
+	sjxiaoxiDao.update(sjxiaoxi);
+}
+public void deleteSjxiaoxi(Integer id) {
+	// TODO Auto-generated method stub
+	sjxiaoxiDao.delete(id);
+}
+public void save(Sjxiaoxi sjxiaoxi) {
+	// TODO Auto-generated method stub
+	sjxiaoxiDao.add(sjxiaoxi);
+}
+public void update(Sjxiaoxi sjxiaoxi) {
+	sjxiaoxiMapper.updateByPrimaryKey(sjxiaoxi);
+}
+public void add(Sjxiaoxi sjxiaoxi) {
+	sjxiaoxiMapper.insert(sjxiaoxi);
+}
+
+
+
+
+
+
+
+//搜索显示
+@RequestMapping("/getSjxiaoxis")
+public void getSjxiaoxis(HttpServletRequest request,
+		HttpServletResponse response) throws Exception {
+	request.setCharacterEncoding("UTF-8");
+	response.setCharacterEncoding("UTF-8");
+	String page = (String) request.getParameter("page");
+	String rows = (String) request.getParameter("rows");
+	String sjxiaoxiName = (String) request.getParameter("sjxiaoxiName");
+	String sjxiaoxiId = (String) request.getParameter("sjxiaoxiId");
+	String sjxiaoxiType = (String) request.getParameter("sjxiaoxiType");
+	Sjxiaoxi sjxiaoxi = new Sjxiaoxi();
+	PageBean pageBean = null;
+	if ((StringUtil.isNotEmpty(page))&&(!page.equals("null"))) {
+		pageBean = new PageBean(Integer.parseInt(page),Integer.parseInt(rows));
+	}else{
+		pageBean = new PageBean(0,0);
+	}
+	try {
+		if (StringUtil.isNotEmpty(sjxiaoxiName)) {
+			sjxiaoxi.setSjxiaoxiName(sjxiaoxiName);
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiPhone)) {
+			sjxiaoxi.setSjxiaoxiPhone(sjxiaoxiPhone);
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiId)) {
+			sjxiaoxi.setSjxiaoxiId(Integer.parseInt(sjxiaoxiId));
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiType)) {
+			sjxiaoxi.setSjxiaoxiType(Integer.parseInt(sjxiaoxiType));
+		}
+		if (StringUtil.isNotEmpty(sjxiaoxiType1)) {
+			sjxiaoxi.setSjxiaoxiType1(Integer.parseInt(sjxiaoxiType1));
+		}
+		JSONArray jsonArray = JSONArray.fromObject(sjxiaoxiService.querySjxiaoxis(
+				sjxiaoxi, pageBean.getStart(), pageBean.getRows()));
+		JSONObject result = new JSONObject();
+		int total = sjxiaoxiService.querySjxiaoxis(sjxiaoxi, 0,0).size();
+		result.put("rows", jsonArray);
+		result.put("total", total);
+		ResponseUtil.write(response, result);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}
+public List querySjxiaoxis(Sjxiaoxi record,int page,int rows) {
+	// TODO Auto-generated method stub
+	return sjxiaoxiDao.getSjxiaoxiList(record,page,rows);
+}
+public List getSjxiaoxiList(Sjxiaoxi record,int page,int rows) {
+	List<Sjxiaoxi> list = sjxiaoxiMapper.selectAll(record,page,rows);
+	return list;
+}

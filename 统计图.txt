@@ -1,0 +1,104 @@
+@RequestMapping("/shujuTongji")
+public void shujuTongji(HttpServletRequest request, HttpServletResponse response)
+		throws Exception {
+	request.setCharacterEncoding("UTF-8");
+	response.setCharacterEncoding("UTF-8");
+	String sdate=request.getParameter("sdate");
+	String edate=request.getParameter("edate");
+	String userId=request.getParameter("userId");
+	String tijiaoUrl = request.getParameter("tijiaoUrl");
+	String tongjitu = request.getParameter("tongjitu");
+	List<Integer> sjleixingIds = new ArrayList<Integer>();
+	List<String> tongjiNames = new ArrayList<String>();
+	List<Double> tongjiZongshus = new ArrayList<Double>();
+	List<Sjleixing> sjleixings = new ArrayList<Sjleixing>();
+	List<Shuju> shujus = new ArrayList<Shuju>();
+	Double zongshu = 0.0;
+	Shuju shuju = new Shuju();
+	if (StringUtil.isNotEmpty(userId)) {
+		shuju.setUserId(Integer.parseInt(userId));
+	}
+	try {
+		sjleixings = sjleixingService.querySjleixings(null, 0, 0);
+		for(int i=0;i<sjleixings.size();i++){
+			sjleixingIds.add(sjleixings.get(i).getSjleixingId());
+			tongjiNames.add(sjleixings.get(i).getSjleixingName());
+		}
+		for(int i=0;i<sjleixingIds.size();i++){
+			Double shujuZongshu = 0.0;
+			shuju.setSjleixingId(sjleixingIds.get(i));
+			shujus = shujuService.queryShujus(shuju, 0, 0,sdate,edate, null, null);
+			shujuZongshu = shujuZongshu + shujus.size();
+			zongshu = zongshu + shujuZongshu;
+			tongjiZongshus.add(shujuZongshu);
+		}
+		
+		HttpSession session = request.getSession();
+		session.setAttribute("tijiaoUrl", tijiaoUrl);
+		session.setAttribute("tongjiNames", tongjiNames);
+		session.setAttribute("tongjiZongshus", tongjiZongshus);
+		session.setAttribute("zongshu", zongshu);
+		if (StringUtil.isNotEmpty(userId)) {
+			response.sendRedirect("user/" + tongjitu + ".jsp");	
+		}else{
+			response.sendRedirect("admin/" + tongjitu + ".jsp");
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}
+
+
+
+
+@RequestMapping("/sjshaochuTongji")
+public void sjshaochuTongji(HttpServletRequest request, HttpServletResponse response)
+		throws Exception {
+	request.setCharacterEncoding("UTF-8");
+	response.setCharacterEncoding("UTF-8");
+	String sdate=request.getParameter("sdate");
+	String edate=request.getParameter("edate");
+	String userId=request.getParameter("userId");
+	String tijiaoUrl = request.getParameter("tijiaoUrl");
+	String tongjitu = request.getParameter("tongjitu");
+	List<Integer> sjleixingIds = new ArrayList<Integer>();
+	List<String> tongjiNames = new ArrayList<String>();
+	List<Double> tongjiZongshus = new ArrayList<Double>();
+	List<Sjleixing> sjleixings = new ArrayList<Sjleixing>();
+	List<Sjshaochu> sjshaochus = new ArrayList<Sjshaochu>();
+	Double zongshu = 0.0;
+	Sjshaochu sjshaochu = new Sjshaochu();
+	Sjleixing sjleixing = new Sjleixing();
+	try {
+		sjleixings = sjleixingService.querySjleixings(sjleixing, 0,0);
+		for(int i=0;i<sjleixings.size();i++){
+			sjleixingIds.add(sjleixings.get(i).getSjleixingId());
+			tongjiNames.add(sjleixings.get(i).getSjleixingName());
+		}
+		for(int i=0;i<sjleixingIds.size();i++){
+			Double sjshaochuZongshu = 0.0;
+			sjshaochu.setSjleixingId(sjleixingIds.get(i));
+			sjshaochu.setSjshaochuType(1);
+			sjshaochus = sjshaochuService.querySjshaochus(sjshaochu, 0,0,sdate,edate, null, null);
+			for(int j=0;j<sjshaochus.size();j++){
+				sjshaochuZongshu = sjshaochuZongshu + sjshaochus.get(j).getSjshaochuDouble1();
+			}
+			zongshu = zongshu + sjshaochuZongshu;
+			tongjiZongshus.add(sjshaochuZongshu);
+		}
+		
+		HttpSession session = request.getSession();
+		session.setAttribute("tijiaoUrl", tijiaoUrl);
+		session.setAttribute("tongjiNames", tongjiNames);
+		session.setAttribute("tongjiZongshus", tongjiZongshus);
+		session.setAttribute("zongshu", zongshu);
+		if (StringUtil.isNotEmpty(userId)) {
+			response.sendRedirect("user/" + tongjitu + ".jsp");	
+		}else{
+			response.sendRedirect("admin/" + tongjitu + ".jsp");
+		}
+		
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}
